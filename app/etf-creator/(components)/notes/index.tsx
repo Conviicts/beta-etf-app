@@ -13,13 +13,13 @@ const notes = [
             "Creating an ETF basket requires gas fees. Ensure you have sufficient HLS in your wallet"
     },
     {
-        icon: "hugeicons:lock-01",
+        icon: "hugeicons:lock",
         title: "Immutable After Creation",
         description:
             "Once deployed, the basket composition cannot be changed. Review carefully before creating"
     },
     {
-        icon: "hugeicons:coins-swap-01",
+        icon: "hugeicons:coins-swap",
         title: "Token Liquidity",
         description:
             "Ensure all tokens in your basket have sufficient liquidity for smooth operations"

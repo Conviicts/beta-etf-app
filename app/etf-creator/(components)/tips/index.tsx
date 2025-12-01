@@ -7,13 +7,13 @@ import s from "./tips.module.scss"
 
 const tips = [
     {
-        icon: "hugeicons:chart-pie",
+        icon: "hugeicons:pie-chart",
         title: "Diversify Allocations",
         description:
             "Spread your allocations across multiple tokens to reduce risk and increase stability"
     },
     {
-        icon: "hugeicons:shield-check",
+        icon: "hugeicons:checkmark-circle-01",
         title: "Verify Token Addresses",
         description:
             "Always double-check token contract addresses before adding them to your basket"
