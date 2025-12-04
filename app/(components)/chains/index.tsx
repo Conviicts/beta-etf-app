@@ -11,6 +11,7 @@ import { HyperionChain } from "@/types/hyperion"
 import { getLogoByHash } from "@/utils/url"
 import Image from "next/image"
 import { useChains } from "@/hooks/useChains"
+import { ETHEREUM_NETWORK_ID } from "@/config/app"
 
 export const Chains = () => {
   const { chains } = useChains()
@@ -58,7 +59,7 @@ export const Chains = () => {
         responsiveBottom
       >
         <ul className={s.list}>
-          {chains.map((chain) => (
+          {chains.filter(chain => chain.chainId === ETHEREUM_NETWORK_ID).map((chain) => (
             <li key={chain.chainId}>
               <Button
                 variant="secondary"
@@ -68,11 +69,6 @@ export const Chains = () => {
                 hovering={chain.chainId === chainId}
                 className={clsx(s.button)}
               >
-                {/* <Symbol
-                  icon={chain.iconName}
-                  color={chain.color}
-                  className={s.icon}
-                /> */}
                 <div className={s.symbol}>
                   {chain.logo !== "" && (
                     <Image
