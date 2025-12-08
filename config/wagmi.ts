@@ -75,7 +75,8 @@ export const toAppKitNetwork = (chain: any): AppKitNetwork => ({
 })
 
 export const networksWagmiOfHelios: AppKitNetwork[] = [
-  toAppKitNetwork(mainnet)
+  toAppKitNetwork(mainnet),
+  toAppKitNetwork(arbitrum)
 ]
 
 export const wagmiAdapter = new WagmiAdapter({
