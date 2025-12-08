@@ -12,20 +12,32 @@ import s from "./interface.module.scss"
 import { useAccount, useChainId } from "wagmi"
 import { HELIOS_NETWORK_ID } from "@/config/app"
 import { useRecentETFsContext } from "@/context/RecentETFsContext"
+import { useETFContract } from "@/hooks/useETFContract"
+import { useWeb3Provider } from "@/hooks/useWeb3Provider"
+import { erc20Abi } from "@/constant/helios-contracts"
 
 type TokenInBasket = {
     address: string
     symbol: string
     percentage: number
+    priceFeed: string
+    depositPath: string
+    withdrawPath: string
 }
 
 type ETFForm = {
     name: string
     symbol: string
+    depositToken: string
+    depositFeed: string
+    router: string
     tokens: TokenInBasket[]
     currentTokenAddress: string
     currentTokenSymbol: string
     currentTokenPercentage: string
+    currentTokenPriceFeed: string
+    currentTokenDepositPath: string
+    currentTokenWithdrawPath: string
     rebalancingMode: "automatic" | "manual" | "no-rebalancing" | null
 }
 
@@ -39,18 +51,28 @@ export const ETFCreatorInterface = () => {
     const [showAutomaticModal, setShowAutomaticModal] = useState(false)
     const [showManualModal, setShowManualModal] = useState(false)
     const [showNoRebalancingModal, setShowNoRebalancingModal] = useState(false)
+    const [showAddTokenModal, setShowAddTokenModal] = useState(false)
 
     const [form, setForm] = useState<ETFForm>({
         name: "",
         symbol: "",
+        depositToken: "",
+        depositFeed: "",
+        router: "",
         tokens: [],
         currentTokenAddress: "",
         currentTokenSymbol: "",
         currentTokenPercentage: "",
+        currentTokenPriceFeed: "",
+        currentTokenDepositPath: "",
+        currentTokenWithdrawPath: "",
         rebalancingMode: null
     })
 
     const { addETF } = useRecentETFsContext()
+    const { createETF, isLoading: isCreatingETF } = useETFContract()
+    const web3Provider = useWeb3Provider()
+    const isLoadingDeploy = isLoading || isCreatingETF
 
     const handleInputChange =
         (field: keyof ETFForm) =>
@@ -71,15 +93,49 @@ export const ETFCreatorInterface = () => {
                     ...prev,
                     [field]: value
                 }))
+
+                // Auto-fetch symbol when token address changes
+                if (field === "currentTokenAddress" && value && web3Provider) {
+                    fetchTokenSymbol(value)
+                }
             }
 
-    const handleAddToken = () => {
+    const fetchTokenSymbol = async (tokenAddress: string) => {
+        if (!web3Provider || !tokenAddress) return
+
+        try {
+            const tokenContract = new web3Provider.eth.Contract(
+                erc20Abi as any,
+                tokenAddress
+            )
+            const tokenSymbol = (await tokenContract.methods.symbol().call()) as string
+            setForm((prev) => ({
+                ...prev,
+                currentTokenSymbol: tokenSymbol.toUpperCase()
+            }))
+        } catch (error) {
+            // If symbol fetch fails, clear the symbol field
+            setForm((prev) => ({
+                ...prev,
+                currentTokenSymbol: ""
+            }))
+        }
+    }
+
+    const handleAddToken = async () => {
         if (
             !form.currentTokenAddress ||
-            !form.currentTokenSymbol ||
-            !form.currentTokenPercentage
+            !form.currentTokenPercentage ||
+            !form.currentTokenPriceFeed ||
+            !form.currentTokenDepositPath ||
+            !form.currentTokenWithdrawPath
         ) {
             toast.error("Please fill in all token fields")
+            return
+        }
+
+        if (!web3Provider) {
+            toast.error("Web3 provider not available")
             return
         }
 
@@ -101,21 +157,75 @@ export const ETFCreatorInterface = () => {
             return
         }
 
-        const newToken: TokenInBasket = {
-            address: form.currentTokenAddress,
-            symbol: form.currentTokenSymbol.toUpperCase(),
-            percentage: percentage
+        // Parse deposit and withdraw paths (comma-separated addresses)
+        const depositPathArray = form.currentTokenDepositPath
+            .split(",")
+            .map((addr) => addr.trim())
+            .filter((addr) => addr.length > 0)
+        const withdrawPathArray = form.currentTokenWithdrawPath
+            .split(",")
+            .map((addr) => addr.trim())
+            .filter((addr) => addr.length > 0)
+
+        if (depositPathArray.length === 0 || withdrawPathArray.length === 0) {
+            toast.error("Deposit and withdraw paths must contain at least one address")
+            return
         }
 
+        try {
+            // Use existing symbol if available, otherwise fetch it
+            let tokenSymbol = form.currentTokenSymbol
+
+            if (!tokenSymbol) {
+                // Fetch token symbol from ERC20 contract
+                const tokenContract = new web3Provider.eth.Contract(
+                    erc20Abi as any,
+                    form.currentTokenAddress
+                )
+                tokenSymbol = (await tokenContract.methods.symbol().call()) as string
+            }
+
+            const newToken: TokenInBasket = {
+                address: form.currentTokenAddress,
+                symbol: tokenSymbol.toUpperCase(),
+                percentage: percentage,
+                priceFeed: form.currentTokenPriceFeed,
+                depositPath: form.currentTokenDepositPath,
+                withdrawPath: form.currentTokenWithdrawPath
+            }
+
+            setForm((prev) => ({
+                ...prev,
+                tokens: [...prev.tokens, newToken],
+                currentTokenAddress: "",
+                currentTokenSymbol: "",
+                currentTokenPercentage: "",
+                currentTokenPriceFeed: "",
+                currentTokenDepositPath: "",
+                currentTokenWithdrawPath: ""
+            }))
+
+            setShowAddTokenModal(false)
+            toast.success(`${newToken.symbol} added to basket`)
+        } catch (error: any) {
+            toast.error(
+                error?.message || "Failed to fetch token symbol. Please check the token address."
+            )
+            console.error("Error fetching token symbol:", error)
+        }
+    }
+
+    const handleCloseAddTokenModal = () => {
+        setShowAddTokenModal(false)
         setForm((prev) => ({
             ...prev,
-            tokens: [...prev.tokens, newToken],
             currentTokenAddress: "",
             currentTokenSymbol: "",
-            currentTokenPercentage: ""
+            currentTokenPercentage: "",
+            currentTokenPriceFeed: "",
+            currentTokenDepositPath: "",
+            currentTokenWithdrawPath: ""
         }))
-
-        toast.success(`${newToken.symbol} added to basket`)
     }
 
     const handleRemoveToken = (address: string) => {
@@ -138,15 +248,57 @@ export const ETFCreatorInterface = () => {
         setIsLoading(true)
 
         try {
-            // Simulate deployment (replace with actual smart contract call)
-            await new Promise((resolve) => setTimeout(resolve, 2000))
+            // Validate required fields
+            if (!form.depositToken || !form.depositFeed || !form.router) {
+                toast.error("Please fill in deposit token, deposit feed, and router")
+                setIsLoading(false)
+                return
+            }
+
+            // Convert percentages to basis points (multiply by 100, so 50% = 5000 bps)
+            const targetWeightsBps = form.tokens.map((token) =>
+                Math.round(token.percentage * 100)
+            )
+
+            // Prepare arrays
+            const assetTokens = form.tokens.map((token) => token.address)
+            const priceFeeds = form.tokens.map((token) => token.priceFeed)
+
+            // Parse deposit and withdraw paths
+            const depositPaths = form.tokens.map((token) =>
+                token.depositPath
+                    .split(",")
+                    .map((addr) => addr.trim())
+                    .filter((addr) => addr.length > 0)
+            )
+            const withdrawPaths = form.tokens.map((token) =>
+                token.withdrawPath
+                    .split(",")
+                    .map((addr) => addr.trim())
+                    .filter((addr) => addr.length > 0)
+            )
+
+            // Call the createETF function
+            const result = await createETF({
+                depositToken: form.depositToken,
+                depositFeed: form.depositFeed,
+                router: form.router,
+                assetTokens,
+                priceFeeds,
+                targetWeightsBps,
+                depositPaths,
+                withdrawPaths,
+                name: form.name,
+                symbol: form.symbol.toUpperCase()
+            })
 
             const newETF = {
                 name: form.name,
                 symbol: form.symbol.toUpperCase(),
                 tokens: form.tokens,
-                address: `0x${Math.random().toString(16).substr(2, 40)}`,
-                txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
+                address: result.vault,
+                shareToken: result.shareToken,
+                txHash: result.txHash,
                 timestamp: Date.now()
             }
 
@@ -167,20 +319,30 @@ export const ETFCreatorInterface = () => {
         setForm({
             name: "",
             symbol: "",
+            depositToken: "",
+            depositFeed: "",
+            router: "",
             tokens: [],
             currentTokenAddress: "",
             currentTokenSymbol: "",
             currentTokenPercentage: "",
+            currentTokenPriceFeed: "",
+            currentTokenDepositPath: "",
+            currentTokenWithdrawPath: "",
             rebalancingMode: null
         })
         setDeployedETF(null)
         setShowSuccess(false)
         setShowPreview(false)
+        setShowAddTokenModal(false)
     }
 
     const isFormValid =
         form.name &&
         form.symbol &&
+        form.depositToken &&
+        form.depositFeed &&
+        form.router &&
         form.tokens.length > 0 &&
         getTotalPercentage() === 100 &&
         form.rebalancingMode !== null
@@ -220,6 +382,36 @@ export const ETFCreatorInterface = () => {
                             onChange={handleInputChange("symbol")}
                             maxLength={10}
                             style={{ textTransform: "uppercase" }}
+                        />
+
+                        {/* Deposit Token */}
+                        <Input
+                            label="Deposit Token Address"
+                            icon="hugeicons:link-01"
+                            type="text"
+                            value={form.depositToken}
+                            placeholder="0x..."
+                            onChange={handleInputChange("depositToken")}
+                        />
+
+                        {/* Deposit Feed */}
+                        <Input
+                            label="Deposit Token Price Feed"
+                            icon="hugeicons:chart-01"
+                            type="text"
+                            value={form.depositFeed}
+                            placeholder="0x..."
+                            onChange={handleInputChange("depositFeed")}
+                        />
+
+                        {/* Router */}
+                        <Input
+                            label="Router Address (Uniswap V2)"
+                            icon="hugeicons:swap-01"
+                            type="text"
+                            value={form.router}
+                            placeholder="0x..."
+                            onChange={handleInputChange("router")}
                         />
 
                         {/* Rebalancing Mode Selection */}
@@ -271,6 +463,7 @@ export const ETFCreatorInterface = () => {
                                         }))
                                     }
                                     type="button"
+                                    disabled={true}
                                 >
                                     <div className={s.modeButtonContent}>
                                         <Icon icon="hugeicons:hand-02" className={s.modeIcon} />
@@ -300,6 +493,7 @@ export const ETFCreatorInterface = () => {
                                             rebalancingMode: "no-rebalancing"
                                         }))
                                     }
+                                    disabled={true}
                                     type="button"
                                 >
                                     <div className={s.modeButtonContent}>
@@ -329,70 +523,37 @@ export const ETFCreatorInterface = () => {
                         <div className={s.tokenSection}>
                             <div className={s.sectionHeader}>
                                 <h3>Add Tokens to Basket</h3>
-                                <span className={s.totalPercentage}>
-                                    Total: {getTotalPercentage()}%
-                                </span>
-                            </div>
-
-                            <div className={s.tokenInputs}>
-                                <Input
-                                    label="Token Address"
-                                    icon="hugeicons:link-01"
-                                    type="text"
-                                    value={form.currentTokenAddress}
-                                    placeholder="0x..."
-                                    onChange={handleInputChange("currentTokenAddress")}
-                                />
-
-                                <Input
-                                    label="Token Symbol"
-                                    icon="hugeicons:coins-01"
-                                    type="text"
-                                    value={form.currentTokenSymbol}
-                                    placeholder="e.g., ETH"
-                                    onChange={handleInputChange("currentTokenSymbol")}
-                                    maxLength={10}
-                                    style={{ textTransform: "uppercase" }}
-                                />
-
-                                <Input
-                                    label="Percentage (%)"
-                                    icon="hugeicons:percent"
-                                    type="number"
-                                    value={form.currentTokenPercentage}
-                                    placeholder="e.g., 25"
-                                    onChange={handleInputChange("currentTokenPercentage")}
-                                    min={0}
-                                    max={100}
-                                />
-
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleAddToken}
-                                    iconLeft="hugeicons:add-01"
-                                    className={s.addTokenBtn}
-                                >
-                                    Add Token
-                                </Button>
+                                <div className={s.headerActions}>
+                                    <span className={s.totalPercentage}>
+                                        Total: {getTotalPercentage()}%
+                                    </span>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => setShowAddTokenModal(true)}
+                                        iconLeft="hugeicons:add-01"
+                                        size="small"
+                                    >
+                                        Add Token
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* Token List */}
-                            {form.tokens.length > 0 && (
+                            {form.tokens.length > 0 ? (
                                 <div className={s.tokenList}>
                                     {form.tokens.map((token) => (
                                         <div key={token.address} className={s.tokenItem}>
                                             <div className={s.tokenInfo}>
-                                                <Icon icon="hugeicons:coins-01" />
-                                                <div className={s.tokenDetails}>
-                                                    <span className={s.tokenSymbol}>{token.symbol}</span>
-                                                    <span className={s.tokenAddress}>
-                                                        {token.address.slice(0, 6)}...
-                                                        {token.address.slice(-4)}
-                                                    </span>
-                                                </div>
+                                                <span className={s.tokenAddress}>
+                                                    {token.address.slice(0, 6)}...
+                                                    {token.address.slice(-4)}
+                                                </span>
                                             </div>
                                             <div className={s.tokenPercentage}>
                                                 {token.percentage}%
+                                            </div>
+                                            <div className={s.tokenSymbol}>
+                                                {token.symbol}
                                             </div>
                                             <Button
                                                 variant="secondary"
@@ -403,6 +564,10 @@ export const ETFCreatorInterface = () => {
                                             />
                                         </div>
                                     ))}
+                                </div>
+                            ) : (
+                                <div className={s.emptyTokenList}>
+                                    <p>No tokens added yet. Click "Add Token" to get started.</p>
                                 </div>
                             )}
 
@@ -437,7 +602,10 @@ export const ETFCreatorInterface = () => {
                                 variant="secondary"
                                 onClick={handlePreview}
                                 disabled={
-                                    !isFormValid || !isHeliosNetwork || !isWalletConnected
+                                    !isFormValid ||
+                                    !isHeliosNetwork ||
+                                    !isWalletConnected ||
+                                    isLoadingDeploy
                                 }
                                 className={s.previewBtn}
                             >
@@ -449,11 +617,11 @@ export const ETFCreatorInterface = () => {
                                     !isFormValid ||
                                     !isHeliosNetwork ||
                                     !isWalletConnected ||
-                                    isLoading
+                                    isLoadingDeploy
                                 }
                                 className={s.deployBtn}
                             >
-                                {isLoading ? "Creating..." : "Create Basket"}
+                                {isLoadingDeploy ? "Creating..." : "Create Basket"}
                             </Button>
                         </div>
                     </div>
@@ -505,8 +673,8 @@ export const ETFCreatorInterface = () => {
                         >
                             Edit
                         </Button>
-                        <Button onClick={handleDeploy} disabled={isLoading}>
-                            {isLoading ? "Creating..." : "Confirm & Create"}
+                        <Button onClick={handleDeploy} disabled={isLoadingDeploy}>
+                            {isLoadingDeploy ? "Creating..." : "Confirm & Create"}
                         </Button>
                     </div>
                 </Card>
@@ -531,6 +699,24 @@ export const ETFCreatorInterface = () => {
                                     onClick={() => {
                                         navigator.clipboard.writeText(deployedETF?.address || "")
                                         toast.success("Address copied!")
+                                    }}
+                                    iconLeft="hugeicons:copy-01"
+                                />
+                            </div>
+                        </div>
+
+                        <div className={s.successItem}>
+                            <span className={s.successLabel}>Share Token Address:</span>
+                            <div className={s.addressContainer}>
+                                <span className={s.address}>{deployedETF?.shareToken}</span>
+                                <Button
+                                    variant="secondary"
+                                    size="xsmall"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            deployedETF?.shareToken || ""
+                                        )
+                                        toast.success("Share token address copied!")
                                     }}
                                     iconLeft="hugeicons:copy-01"
                                 />
@@ -687,6 +873,88 @@ export const ETFCreatorInterface = () => {
                                 composition over time.
                             </p>
                         </div>
+                    </div>
+                </Card>
+            </Modal>
+
+            {/* Add Token Modal */}
+            <Modal
+                open={showAddTokenModal}
+                onClose={handleCloseAddTokenModal}
+                title="Add Token to Basket"
+                className={s.modal}
+            >
+                <Card className={s.addTokenCard}>
+                    <div className={s.addTokenForm}>
+                        <Input
+                            label="Token Address"
+                            icon="hugeicons:link-01"
+                            type="text"
+                            value={form.currentTokenAddress}
+                            placeholder="0x..."
+                            onChange={handleInputChange("currentTokenAddress")}
+                        />
+
+                        <Input
+                            label="Symbol"
+                            icon="hugeicons:coins-01"
+                            type="text"
+                            value={form.currentTokenSymbol}
+                            placeholder="Auto-filled from token address"
+                            onChange={handleInputChange("currentTokenSymbol")}
+                            disabled={true}
+                        />
+
+                        <Input
+                            label="Percentage (%)"
+                            icon="hugeicons:percent"
+                            type="number"
+                            value={form.currentTokenPercentage}
+                            placeholder="e.g., 25"
+                            onChange={handleInputChange("currentTokenPercentage")}
+                            min={0}
+                            max={100}
+                        />
+
+                        <Input
+                            label="Price Feed Address"
+                            icon="hugeicons:chart-01"
+                            type="text"
+                            value={form.currentTokenPriceFeed}
+                            placeholder="0x..."
+                            onChange={handleInputChange("currentTokenPriceFeed")}
+                        />
+
+                        <Input
+                            label="Deposit Path (comma-separated addresses)"
+                            icon="hugeicons:arrow-right-01"
+                            type="text"
+                            value={form.currentTokenDepositPath}
+                            placeholder="e.g., 0x..., 0x..."
+                            onChange={handleInputChange("currentTokenDepositPath")}
+                        />
+
+                        <Input
+                            label="Withdraw Path (comma-separated addresses)"
+                            icon="hugeicons:arrow-left-01"
+                            type="text"
+                            value={form.currentTokenWithdrawPath}
+                            placeholder="e.g., 0x..., 0x..."
+                            onChange={handleInputChange("currentTokenWithdrawPath")}
+                        />
+                    </div>
+
+                    <div className={s.modalActions}>
+                        <Button
+                            variant="secondary"
+                            onClick={handleCloseAddTokenModal}
+                            className={s.cancelButton}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={handleAddToken} disabled={isLoading}>
+                            {isLoading ? "Adding..." : "Add Token"}
+                        </Button>
                     </div>
                 </Card>
             </Modal>

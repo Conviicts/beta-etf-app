@@ -13,6 +13,7 @@ export const APP_BASE_URL =
     : new URL("http://localhost:3000")
 
 export const ETHEREUM_NETWORK_ID = 1
+export const ARBITRUM_NETWORK_ID = 42161
 export const HELIOS_NETWORK_ID = 42000
 export const BETA_NETWORK_ID = ETHEREUM_NETWORK_ID
 
