@@ -36,6 +36,7 @@ interface ETF {
   tokens: Array<{
     symbol: string
     percentage: number
+    tvl: string
   }>
   price: string
   vault: string
@@ -53,7 +54,8 @@ function formatETFResponse(etf: ETFResponse): ETF {
   // targetWeightBps: 10000 = 100%, so divide by 100 to get percentage
   const tokens = etf.assets?.map(asset => ({
     symbol: asset.symbol,
-    percentage: asset.targetWeightBps / 100
+    percentage: asset.targetWeightBps / 100,
+    tvl: asset.tvl || "0"
   })) || []
 
   return {
@@ -671,18 +673,41 @@ export default function ETFList() {
                 <div className={s.composition}>
                   <h4>Composition ({etf.tokens.length} tokens)</h4>
                   <div className={s.tokens}>
-                    {etf.tokens.map((token) => (
+                    {etf.tokens.map((token) => {
+                      // Calculate total TVL of all assets
+                      const totalTVL = etf.tokens.reduce((sum, t) => sum + parseFloat(t.tvl || "0"), 0)
+                      // Calculate current percentage based on TVL
+                      const currentPercentage = totalTVL > 0 
+                        ? (parseFloat(token.tvl || "0") / totalTVL) * 100 
+                        : 0
+                      const targetPercentage = token.percentage
+                      
+                      return (
                       <div key={token.symbol} className={s.token}>
                         <span className={s.tokenSymbol}>{token.symbol}</span>
                         <div className={s.percentageBar}>
                           <div
                             className={s.percentageFill}
-                            style={{ width: `${token.percentage}%` }}
-                          />
+                              style={{ width: `${currentPercentage}%` }}
+                              title={`Target: ${targetPercentage.toFixed(2)}% | Current: ${currentPercentage.toFixed(2)}%`}
+                            />
+                            <div
+                              className={s.currentMarker}
+                              style={{ left: `${currentPercentage}%` }}
+                              title={`Current: ${currentPercentage.toFixed(2)}%`}
+                            />
+                          </div>
+                          <span className={s.percentage}>{targetPercentage}%</span>
+                          <div className={s.tokenTooltip}>
+                            <div className={s.tooltipContent}>
+                              <div>Target: {targetPercentage.toFixed(2)}%</div>
+                              <div>Current: {currentPercentage.toFixed(2)}%</div>
+                              <div>TVL: ${formatTokenAmount(token.tvl)}</div>
+                            </div>
+                          </div>
                         </div>
-                        <span className={s.percentage}>{token.percentage}%</span>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
                 ) : (

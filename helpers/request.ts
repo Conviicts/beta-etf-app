@@ -40,6 +40,7 @@ interface ETFAsset {
   token: string
   feed: string
   targetWeightBps: number
+  tvl: string
   depositPath: string[]
   withdrawPath: string[]
   symbol: string
