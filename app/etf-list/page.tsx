@@ -533,6 +533,28 @@ export default function ETFList() {
     }
   }
 
+  const getExplorerUrl = (address: string, chainId: number) => {
+    switch (chainId) {
+      case 1: // Ethereum Mainnet
+        return `https://etherscan.io/address/${address}`
+      case 42161: // Arbitrum One
+        return `https://arbiscan.io/address/${address}`
+      default:
+        return `https://etherscan.io/address/${address}`
+    }
+  }
+
+  const getChainName = (chainId: number) => {
+    switch (chainId) {
+      case 1:
+        return "Ethereum"
+      case 42161:
+        return "Arbitrum"
+      default:
+        return `Chain ${chainId}`
+    }
+  }
+
   return (
     <div className={s.etfList}>
       <div className={s.container}>
@@ -643,6 +665,16 @@ export default function ETFList() {
                     <Badge status="primary">
                       {etf.category}
                     </Badge>
+                    <a
+                      href={getExplorerUrl(etf.vault, etf.chain)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={s.explorerLink}
+                      title={`View on ${getChainName(etf.chain)} explorer`}
+                    >
+                      <Icon icon="hugeicons:link-square-01" />
+                      <span>{getChainName(etf.chain)}</span>
+                    </a>
                   </div>
                 </div>
 
