@@ -16,7 +16,7 @@ import { Variants } from "@/types/feedback"
 interface BaseInputProps {
   label?: string
   icon?: string
-  balance?: number
+  balance?: string | number
   showMaxButton?: boolean
   onMaxClick?: () => void
   className?: string

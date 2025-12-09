@@ -4,7 +4,7 @@ import { useWeb3Provider } from "./useWeb3Provider"
 import { ETF_FACTORY_CONTRACT_ADDRESS as ETF_FACTORY_ADDRESS, etfFactoryAbi as factoryAbi } from "@/constant/etf-contracts"
 import { erc20Abi } from "@/constant/helios-contracts"
 import { getBestGasPrice } from "@/lib/utils/gas"
-import { decodeEventLog, TransactionReceipt } from "viem"
+import { decodeEventLog, TransactionReceipt, Abi } from "viem"
 import { getErrorMessage } from "@/utils/string"
 import { EventLog } from "web3"
 
@@ -281,8 +281,8 @@ export const useETFContract = () => {
 
         console.log("factoryAddress", factoryAddress)
 
-        // Simulate the transaction
-        await factoryContract.methods
+        // Simulate the transaction and get the return value
+        const sharesOutRet: any = await factoryContract.methods
           .deposit(params.vault, params.amount, params.minSharesOut)
           .call({ from: address })
 
@@ -317,6 +317,7 @@ export const useETFContract = () => {
             })
         })
         
+        // Parse the Deposit event for additional info (eventNonce, eventHeight)
         let depositEvent: any | null = null
 
         for (const log of receipt.logs) {
@@ -338,12 +339,13 @@ export const useETFContract = () => {
           throw new Error("Could not find Deposit event in transaction receipt")
         }
         
-        // Ici evt = { eventName, args }
         const { depositAmount, sharesOut, eventNonce, eventHeight } = depositEvent.args
         
+        // Use the return value from the function call (sharesOutRet) instead of event
+        // But keep event data for eventNonce and eventHeight
         return {
           depositAmount,
-          sharesOut,
+          sharesOut: String(sharesOutRet), // Use return value
           eventNonce,
           eventHeight,
           txHash: receipt.transactionHash,
@@ -373,8 +375,8 @@ export const useETFContract = () => {
           factoryAddress
         )
 
-        // Simulate the transaction
-        await factoryContract.methods
+        // Simulate the transaction and get the return value
+        const depositOutRet: any = await factoryContract.methods
           .redeem(params.vault, params.shares, params.minOut)
           .call({ from: address })
 
@@ -408,7 +410,8 @@ export const useETFContract = () => {
               reject(error)
             })
         })
-
+        
+        // Parse the Redeem event for additional info (eventNonce, eventHeight)
         let redeemEvent: any | null = null
 
         for (const log of receipt.logs) {
@@ -432,9 +435,11 @@ export const useETFContract = () => {
 
         const { sharesIn, depositOut, eventNonce, eventHeight } = redeemEvent.args
 
+        // Use the return value from the function call (depositOutRet) instead of event
+        // But keep event data for eventNonce and eventHeight
         return {
           sharesIn,
-          depositOut,
+          depositOut: String(depositOutRet), // Use return value
           eventNonce,
           eventHeight,
           txHash: receipt.transactionHash,
@@ -538,12 +543,68 @@ export const useETFContract = () => {
     }
   })
 
+  const estimateDepositShares = async (params: {
+    factory: string
+    vault: string
+    amount: string
+  }): Promise<string> => {
+    if (!web3Provider || !address) {
+      throw new Error("No wallet connected")
+    }
+
+    try {
+      const factoryContract = new web3Provider.eth.Contract(
+        factoryAbi as any,
+        params.factory
+      )
+
+      // Call deposit with minSharesOut = 0 to get the estimated shares
+      // The function now returns sharesOutRet directly
+      const sharesOutRet: any = await factoryContract.methods
+        .deposit(params.vault, params.amount, "0")
+        .call({ from: address })
+      
+      return String(sharesOutRet)
+    } catch (error: unknown) {
+      throw new Error(getErrorMessage(error) || "Error estimating deposit shares")
+    }
+  }
+
+  const estimateRedeemDeposit = async (params: {
+    factory: string
+    vault: string
+    shares: string
+  }): Promise<string> => {
+    if (!web3Provider || !address) {
+      throw new Error("No wallet connected")
+    }
+
+    try {
+      const factoryContract = new web3Provider.eth.Contract(
+        factoryAbi as any,
+        params.factory
+      )
+
+      // Call redeem with minOut = 0 to get the estimated deposit tokens
+      // The function now returns depositOutRet directly
+      const depositOutRet: any = await factoryContract.methods
+        .redeem(params.vault, params.shares, "0")
+        .call({ from: address })
+      
+      return String(depositOutRet)
+    } catch (error: unknown) {
+      throw new Error(getErrorMessage(error) || "Error estimating redeem deposit")
+    }
+  }
+
   return {
     createETF: createETF.mutateAsync,
     deposit: deposit.mutateAsync,
     redeem: redeem.mutateAsync,
     rebalance: rebalance.mutateAsync,
     approveToken: approveToken.mutateAsync,
+    estimateDepositShares,
+    estimateRedeemDeposit,
     isLoading: createETF.isPending || deposit.isPending || redeem.isPending || rebalance.isPending || approveToken.isPending,
     error: createETF.error || deposit.error || redeem.error || rebalance.error || approveToken.error
   }
