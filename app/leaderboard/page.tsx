@@ -177,11 +177,6 @@ export default function LeaderboardPage() {
                 disabled={currentPage === totalPages}
               />
             </div>
-
-            <div className={s.pageSize}>
-              <span className={s.pageSizeLabel}>25</span>
-              <Icon icon="hugeicons:arrow-down-01" className={s.pageSizeIcon} />
-            </div>
           </div>
         </Card>
       </div>

@@ -1,27 +1,26 @@
 .button {
-  --btn-bg: transparent;
-  --btn-color: var(--color-light-50);
-  --btn-hover-bg: rgba(135, 163, 238, 0.15);
-  --btn-border: var(--primary-medium);
-  --btn-hover-border: var(--primary-medium);
-  --btn-radius: 0.9em;
-  border-width: 1.5px;
-  align-items: flex-end;
-  align-self: flex-end;
-  transition: background-color var(--transition-link), border-color var(--transition-link);
+  --btn-bg: transparent !important;
+  --btn-color: var(--color-light-50) !important;
+  --btn-hover-bg: rgba(135, 163, 238, 0.15) !important;
+  --btn-border: var(--primary-medium) !important;
+  --btn-hover-border: var(--primary-medium) !important;
+  --btn-radius: 0.9em !important;
+  border-width: 1.5px !important;
+  align-self: flex-end !important;
+  transition: background-color var(--transition-link), border-color var(--transition-link) !important;
 
   &:hover,
   &.hovering {
-    background-color: var(--btn-hover-bg, rgba(34, 97, 51, 0.15));
-    border-color: var(--btn-hover-border, var(--primary-medium));
+    background-color: var(--btn-hover-bg, rgba(34, 97, 51, 0.15)) !important;
+    border-color: var(--btn-hover-border, var(--primary-medium)) !important;
   }
 }
 
 .content {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 0.5em;
-  white-space: nowrap;
+  display: inline-flex !important;
+  align-items: flex-end !important;
+  gap: 0.5em !important;
+  white-space: nowrap !important;
 }
 
 .icon {
