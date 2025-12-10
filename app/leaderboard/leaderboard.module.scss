@@ -352,3 +352,53 @@
   width: 1em;
   height: 1em;
 }
+
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: var(--text-secondary);
+
+  p {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  :global(.icon) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+}
+
+.loadingState {
+  :global(.icon) {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.errorState {
+  :global(.icon) {
+    color: var(--error-medium);
+    opacity: 1;
+  }
+
+  p {
+    color: var(--error-medium);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

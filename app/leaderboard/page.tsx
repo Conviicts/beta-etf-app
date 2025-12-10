@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { Icon } from "@/components/icon"
 import { Input } from "@/components/input"
 import { Button } from "@/components/button"
 import { Card } from "@/components/card"
 import { Heading } from "@/components/heading"
-import { generateLeaderboardData } from "@/lib/faker"
+import { fetchLeaderboard, type LeaderboardEntry } from "@/helpers/request"
 import { truncateAddress } from "@/lib/utils"
 import s from "./leaderboard.module.scss"
 
@@ -14,20 +14,33 @@ export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<"season1" | "season2" | "season3">("season1")
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+  const [totalPages, setTotalPages] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const pageSize = 25
 
-  const allLeaderboardData = useMemo(() => generateLeaderboardData(100), [])
+  useEffect(() => {
+    async function loadLeaderboard() {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const response = await fetchLeaderboard(currentPage, pageSize)
+        setLeaderboardData(response.data)
+        setTotalPages(response.pagination.totalPages)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load leaderboard")
+        setLeaderboardData([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-  const filteredData = useMemo(() => {
-    return allLeaderboardData.filter(entry =>
-      entry.address.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [searchTerm, allLeaderboardData])
+    loadLeaderboard()
+  }, [currentPage])
 
-  const totalPages = Math.ceil(filteredData.length / pageSize)
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const filteredData = leaderboardData.filter(entry =>
+    entry.address.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const seasonLabels = {
@@ -95,45 +108,68 @@ export default function LeaderboardPage() {
             </div>
 
             <div className={s.tableWrapper}>
-              <table className={s.table}>
-                <thead>
-                  <tr>
-                    <th className={s.rankCol}>Rank</th>
-                    <th className={s.addressCol}>Address</th>
-                    <th className={s.pointsCol}>Total Points accrued</th>
-                    <th className={s.feesCol}>Fees generated</th>
-                    <th className={s.volumeCol}>Volume traded</th>
-                    <th className={s.transactionsCol}>Transactions performed</th>
-                    <th className={s.referralCol}>Referral points</th>
-                    <th className={s.iaaStCol}>IaaS points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.map((entry) => (
-                    <tr key={entry.address} className={s.row}>
-                      <td className={s.rankCol}>
-                        <span className={s.rankBadge}>{entry.rank}</span>
-                      </td>
-                      <td className={s.addressCol}>
-                        <span className={s.address}>{truncateAddress(entry.address)}</span>
-                      </td>
-                      <td className={s.pointsCol}>
-                        <span className={s.points}>
-                          {entry.totalPointsAccrued.toLocaleString("en-US", {
+              {isLoading ? (
+                <div className={s.loadingState}>
+                  <Icon icon="hugeicons:loading-01" />
+                  <p>Loading leaderboard...</p>
+                </div>
+              ) : error ? (
+                <div className={s.errorState}>
+                  <Icon icon="hugeicons:alert-circle" />
+                  <p>{error}</p>
+                </div>
+              ) : filteredData.length === 0 ? (
+                <div className={s.emptyState}>
+                  <Icon icon="hugeicons:search-01" />
+                  <p>No results found</p>
+                </div>
+              ) : (
+                <table className={s.table}>
+                  <thead>
+                    <tr>
+                      <th className={s.rankCol}>Rank</th>
+                      <th className={s.addressCol}>Address</th>
+                      <th className={s.pointsCol}>Total Points accrued</th>
+                      <th className={s.feesCol}>Fees generated</th>
+                      <th className={s.volumeCol}>Volume traded</th>
+                      <th className={s.transactionsCol}>Transactions performed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.map((entry) => (
+                      <tr key={entry.address} className={s.row}>
+                        <td className={s.rankCol}>
+                          <span className={s.rankBadge}>{entry.rank}</span>
+                        </td>
+                        <td className={s.addressCol}>
+                          <span className={s.address}>{truncateAddress(entry.address)}</span>
+                        </td>
+                        <td className={s.pointsCol}>
+                          <span className={s.points}>
+                            {parseFloat(entry.totalPointsAccrued).toLocaleString("en-US", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2
+                            })}
+                          </span>
+                        </td>
+                        <td className={s.feesCol}>
+                          {parseFloat(entry.feesGenerated).toLocaleString("en-US", {
                             minimumFractionDigits: 0,
                             maximumFractionDigits: 2
                           })}
-                        </span>
-                      </td>
-                      <td className={s.feesCol}>{entry.feesGenerated}</td>
-                      <td className={s.volumeCol}>{entry.volumeTraded}</td>
-                      <td className={s.transactionsCol}>{entry.transactionsPerformed}</td>
-                      <td className={s.referralCol}>{entry.referralPoints}</td>
-                      <td className={s.iaaStCol}>{entry.iaaStPoints}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                        <td className={s.volumeCol}>
+                          {parseFloat(entry.volumeTraded).toLocaleString("en-US", {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2
+                          })}
+                        </td>
+                        <td className={s.transactionsCol}>{entry.transactionsPerformed}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <div className={s.pagination}>
