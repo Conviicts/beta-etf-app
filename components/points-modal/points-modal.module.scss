@@ -38,6 +38,17 @@
   &.active {
     color: var(--primary-medium);
     border-bottom-color: var(--primary-medium);
+    background: linear-gradient(to bottom, transparent 0%, var(--background-medium) 100%);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--text-secondary);
+
+    &:hover {
+      color: var(--text-secondary);
+    }
   }
 }
 

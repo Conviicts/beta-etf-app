@@ -108,7 +108,7 @@
 }
 
 .tab {
-  padding: 1rem 1.5rem;
+  padding: 1rem 3rem;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -129,6 +129,17 @@
   &.active {
     color: var(--primary-medium);
     border-bottom-color: var(--primary-medium);
+    background: linear-gradient(to bottom, transparent 0%, transparent 10%, var(--background-high) 100%);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--text-secondary);
+
+    &:hover {
+      color: var(--text-secondary);
+    }
   }
 }
 

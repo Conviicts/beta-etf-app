@@ -19,19 +19,19 @@ export const PointsModal = ({ open, onClose, points }: PointsModalProps) => {
   const seasonData = {
     season1: {
       label: "Season 1",
-      status: "Ended",
+      status: "Active",
       points: points,
       description: "Season 1 is now complete. View the leaderboard to see final rankings."
     },
     season2: {
       label: "Season 2",
-      status: "Ended",
+      status: "Not Started",
       points: 0,
       description: "Season 2 has concluded."
     },
     season3: {
       label: "Season 3",
-      status: "Active",
+      status: "Not Started",
       points: 0,
       description: "Season 3 is currently in progress."
     }
@@ -44,18 +44,22 @@ export const PointsModal = ({ open, onClose, points }: PointsModalProps) => {
       <div className={s.content}>
         <div className={s.tabsContainer}>
           <div className={s.tabs}>
-            {(["season1", "season2", "season3"] as const).map((season) => (
-              <button
-                key={season}
-                className={`${s.tab} ${activeTab === season ? s.active : ""}`}
-                onClick={() => setActiveTab(season)}
-              >
-                <span className={s.seasonLabel}>{seasonData[season].label}</span>
-                {seasonData[season].status && (
-                  <span className={s.status}>{seasonData[season].status}</span>
-                )}
-              </button>
-            ))}
+            {(["season1", "season2", "season3"] as const).map((season) => {
+              const isDisabled = season !== "season1"
+              return (
+                <button
+                  key={season}
+                  className={`${s.tab} ${activeTab === season ? s.active : ""} ${isDisabled ? s.disabled : ""}`}
+                  onClick={() => !isDisabled && setActiveTab(season)}
+                  disabled={isDisabled}
+                >
+                  <span className={s.seasonLabel}>{seasonData[season].label}</span>
+                  {seasonData[season].status && (
+                    <span className={s.status}>{seasonData[season].status}</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
 

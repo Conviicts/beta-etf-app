@@ -31,9 +31,9 @@ export default function LeaderboardPage() {
   )
 
   const seasonLabels = {
-    season1: { label: "Season 1", status: "Ended" },
-    season2: { label: "Season 2", status: "Ended" },
-    season3: { label: "Season 3", status: "Active" }
+    season1: { label: "Season 1", status: "Active" },
+    season2: { label: "Season 2", status: "Not Started" },
+    season3: { label: "Season 3", status: "Not Started" }
   }
 
   return (
@@ -50,23 +50,29 @@ export default function LeaderboardPage() {
 
           <div className={s.tabsContainer}>
             <div className={s.tabs}>
-              {(["season1", "season2", "season3"] as const).map((season) => (
-                <button
-                  key={season}
-                  className={`${s.tab} ${activeTab === season ? s.active : ""}`}
-                  onClick={() => {
-                    setActiveTab(season)
-                    setCurrentPage(1)
-                  }}
-                >
-                  <span className={s.seasonLabel}>{seasonLabels[season].label}</span>
-                  {seasonLabels[season].status && (
-                    <span className={`${s.status} ${seasonLabels[season].status === "Active" ? s.active : ""}`}>
-                      {seasonLabels[season].status}
-                    </span>
-                  )}
-                </button>
-              ))}
+              {(["season1", "season2", "season3"] as const).map((season) => {
+                const isDisabled = season !== "season1"
+                return (
+                  <button
+                    key={season}
+                    className={`${s.tab} ${activeTab === season ? s.active : ""} ${isDisabled ? s.disabled : ""}`}
+                    onClick={() => {
+                      if (!isDisabled) {
+                        setActiveTab(season)
+                        setCurrentPage(1)
+                      }
+                    }}
+                    disabled={isDisabled}
+                  >
+                    <span className={s.seasonLabel}>{seasonLabels[season].label}</span>
+                    {seasonLabels[season].status && (
+                      <span className={`${s.status} ${seasonLabels[season].status === "Active" ? s.active : ""}`}>
+                        {seasonLabels[season].status}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
