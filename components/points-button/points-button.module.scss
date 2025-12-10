@@ -1,0 +1,48 @@
+.button {
+  --btn-bg: transparent !important;
+  --btn-color: var(--color-light-50) !important;
+  --btn-hover-bg: rgba(135, 163, 238, 0.15) !important;
+  --btn-border: var(--primary-medium) !important;
+  --btn-hover-border: var(--primary-medium) !important;
+  --btn-radius: 0.9em !important;
+  border-width: 1.5px !important;
+  align-self: flex-end !important;
+  transition: background-color var(--transition-link), border-color var(--transition-link) !important;
+
+  &:hover,
+  &.hovering {
+    background-color: var(--btn-hover-bg, rgba(34, 97, 51, 0.15)) !important;
+    border-color: var(--btn-hover-border, var(--primary-medium)) !important;
+  }
+}
+
+.content {
+  display: inline-flex !important;
+  align-items: flex-end !important;
+  gap: 0.5em !important;
+  white-space: nowrap !important;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.text {
+  font-weight: 600;
+  font-size: 1.25em;
+  color: var(--primary-medium);
+}
+
+.multiplier {
+  background: var(--foreground-low);
+  border: 1px solid var(--primary-medium);
+  border-radius: 0.5em;
+  padding: 0.25em 0.6em;
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--primary-medium);
+  white-space: nowrap;
+  margin-left: 0.1em;
+}
