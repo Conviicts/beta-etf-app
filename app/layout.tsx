@@ -1,11 +1,11 @@
 import { APP_THEME_COLOR } from "@/config/app"
+import ContextProvider from "@/context"
 import { MetadataSeo } from "@/lib/metadata"
 import "@/styles/globals.scss"
-import { Wrapper } from "./(components)/wrapper"
-import { fonts } from "./fonts"
-import ContextProvider from "@/context"
 import { headers } from "next/headers"
 import Script from "next/script"
+import { Wrapper } from "./(components)/wrapper"
+import { fonts } from "./fonts"
 
 export const metadata = MetadataSeo({
   title: "Beta ETF - Helios Chain | ETF Token Trading",
@@ -52,7 +52,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={fonts} style={{ paddingTop: 60 }}>
+      <body className={fonts}>
         <ContextProvider cookies={cookies}>
           <Wrapper>{children}</Wrapper>
         </ContextProvider>

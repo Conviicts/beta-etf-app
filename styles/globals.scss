@@ -7,7 +7,7 @@
 @use "mixins" as *;
 
 html {
-  background-color: var(--background-medium);
+  background-color: var(--body);
   color: var(--text-primary);
   font-size: calc(14px + 1 * ((100vw - 320px) / 680));
   font-weight: 500;
@@ -19,7 +19,6 @@ html {
 
 body {
   font-family: var(--font-main);
-  padding: var(--main-padding);
 
   &.overflow {
     overflow: hidden;

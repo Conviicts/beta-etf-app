@@ -1,7 +1,9 @@
 @use "styles/mixins" as *;
 
 .main {
-  margin-top: var(--main-padding);
+  width: var(--container-width);
+  max-width: var(--container-max);
+  margin: auto;
 }
 
 .toast {
@@ -69,4 +71,12 @@
       transform: scale(1.25);
     }
   }
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background: url("/img/bg.png") no-repeat center center;
+  background-size: cover;
+  z-index: -1;
 }

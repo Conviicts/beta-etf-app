@@ -1,0 +1,47 @@
+@use "@/styles/mixins" as *;
+
+.border {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  &Inner {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 0;
+    border: 1px solid transparent;
+    @include mask(
+      (linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0))
+    );
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 1000px;
+      height: 1000px;
+      aspect-ratio: 1 / 1;
+      @include translate-center;
+      background: var(
+        --border-animate-gradient,
+        conic-gradient(var(--blue), transparent 40% 60%, var(--blue))
+      );
+      animation: borderAnimate 2s linear infinite;
+      z-index: 0;
+    }
+  }
+}
+
+@keyframes borderAnimate {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}

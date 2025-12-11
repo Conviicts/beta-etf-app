@@ -18,22 +18,18 @@ export const Nav = () => {
 
   const list: NavItemProps[] = [
     {
-      icon: "hugeicons:home-01",
       label: "Home",
       href: routes.home
     },
     {
-      icon: "hugeicons:store-01",
       label: "ETF Marketplace",
       href: routes.etfList
     },
     {
-      icon: "hugeicons:package",
       label: "Create ETF",
       href: routes.etfCreate
     },
     {
-      icon: "hugeicons:star",
       label: "Leaderboard",
       href: routes.leaderboard
     }
@@ -56,7 +52,6 @@ export const Nav = () => {
         variant="secondary"
         className={s.bnav}
         onClick={() => setNav(!nav)}
-        border
       />
     </nav>
   )

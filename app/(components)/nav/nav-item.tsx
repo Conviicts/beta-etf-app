@@ -1,34 +1,31 @@
 "use client"
 
-import { Button } from "@/components/button"
+import { Link } from "@/components/link"
 import { useActive } from "@/hooks/useActive"
 import { useAppStore } from "@/stores/app"
+import clsx from "clsx"
 import s from "./nav.module.scss"
 
 export interface NavItemProps {
-  icon: string
   label: string
   href: string
   disabled?: boolean
 }
 
-const NavItem = ({ icon, label, href, disabled }: NavItemProps) => {
+const NavItem = ({ label, href, disabled }: NavItemProps) => {
   const active = useActive(href)
   const { setNav } = useAppStore()
 
   return (
     <li>
-      <Button
+      <Link
         href={href}
-        iconLeft={icon}
-        className={s.item}
-        isActive={active}
-        isNav={true}
+        className={clsx(s.item, active && s.active)}
         onClick={() => setNav(false)}
         disabled={disabled}
       >
         {label}
-      </Button>
+      </Link>
     </li>
   )
 }

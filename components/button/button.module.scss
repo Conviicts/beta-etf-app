@@ -4,7 +4,7 @@
   --btn-base-height: var(--button-medium-height);
   --btn-base-size: var(--button-medium-size);
   --btn-base-padding-x: 1.5em;
-  --btn-base-radius: var(--radius-rounded);
+  --btn-base-radius: 1.1em;
   --btn-base-bg: var(--primary-medium);
   --btn-base-color: var(--color-light-50);
   --btn-base-border-width: 1px;
@@ -35,6 +35,7 @@
     var(--btn-border, var(--btn-base-border));
   justify-content: center;
   position: relative;
+  cursor: pointer;
   @include user-select;
 
   &[disabled] {
@@ -80,76 +81,25 @@
     }
   }
 
-  &.nav {
-    --btn-bg: transparent;
-    --btn-border: transparent;
-    --btn-color: var(--text-primary);
-    --btn-hover-color: var(--text-primary);
-    --btn-hover-bg: var(--background-medium);
-    --btn-hover-border: transparent;
-    --btn-icon-size: 2.35em;
-    padding-left: var(--size-2-5);
-    justify-content: flex-start;
-
-    &[data-variant="danger"],
-    &[data-variant="success"],
-    &[data-variant="warning"] {
-      --btn-color: var(--btn-base-bg);
-      --btn-hover-color: var(--btn-base-bg);
-
-      [data-icon],
-      &:hover [data-icon] {
-        color: var(--btn-base-bg);
-      }
-    }
-
-    &[data-active="true"] {
-      --btn-color: var(--primary-medium);
-      --btn-bg: var(--background-medium);
-      --btn-hover-color: var(--primary-medium);
-
-      [data-icon] {
-        background-color: var(--primary-medium);
-        color: var(--white);
-      }
-    }
-
-    &:hover {
-      [data-icon] {
-        background-color: var(--background-low);
-        color: var(--primary-medium);
-      }
-    }
-
-    [data-icon] {
-      @include transition(link, (background-color, color));
-      background-color: var(--background-high);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: var(--btn-icon-size);
-      height: var(--btn-icon-size);
-      padding: calc(var(--btn-icon-size) / 4);
-      border-radius: var(--radius-rounded);
-      background-color: var(--background-medium);
-      color: var(--text-secondary);
-      margin-right: var(--size-2);
-
-      svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
+  &[data-variant="primary"] {
+    background: linear-gradient(
+      to right,
+      rgba(var(--blue-rgb), 0.25),
+      var(--blue),
+      rgba(var(--blue-rgb), 0.25)
+    );
   }
 
   &[data-variant="secondary"] {
     --btn-base-bg: var(--background-higher);
-    --btn-base-color: var(--text-secondary);
-    --btn-base-border: var(--background-higher);
+    --btn-base-color: var(--btn-color-secondary);
+    --btn-base-border: var(--btn-border-secondary);
     --btn-base-border-color: var(--text-secondary);
-    --btn-base-hover-bg: var(--primary-low);
-    --btn-base-hover-border: var(--primary-low);
-    --btn-base-hover-border-color: var(--color-light-50);
+    --btn-base-hover-border: var(--blue);
+    --btn-base-hover-color: var(--btn-color-secondary);
+    --btn-base-hover-bg: transparent;
+
+    background: transparent !important;
   }
 
   &[data-variant="danger"] {

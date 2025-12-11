@@ -1,19 +1,10 @@
 .button {
   --btn-bg: transparent !important;
-  --btn-color: var(--color-light-50) !important;
-  --btn-hover-bg: rgba(135, 163, 238, 0.15) !important;
-  --btn-border: var(--primary-medium) !important;
-  --btn-hover-border: var(--primary-medium) !important;
-  --btn-radius: 0.9em !important;
-  border-width: 1.5px !important;
+  --btn-color: var(--primary) !important;
+  --btn-padding-x: 0.75em !important;
   align-self: flex-end !important;
-  transition: background-color var(--transition-link), border-color var(--transition-link) !important;
-
-  &:hover,
-  &.hovering {
-    background-color: var(--btn-hover-bg, rgba(34, 97, 51, 0.15)) !important;
-    border-color: var(--btn-hover-border, var(--primary-medium)) !important;
-  }
+  transition: background-color var(--transition-link),
+    border-color var(--transition-link) !important;
 }
 
 .content {

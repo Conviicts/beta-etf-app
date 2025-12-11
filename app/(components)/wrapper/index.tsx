@@ -26,6 +26,7 @@ export const Wrapper = ({ children }: WrapperProps) => {
         }}
       />
       <div id="modal-root" />
+      <div className={s.bg} />
     </>
   )
 }
