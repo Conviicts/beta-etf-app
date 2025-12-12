@@ -16,7 +16,7 @@
 
     @if $bnav {
       .bnav {
-        display: inline-flex;
+        display: inline-flex !important;
       }
     }
   }
@@ -31,8 +31,7 @@
 }
 
 .bnav {
-  --btn-height: calc(var(--button-medium-height) - var(--size-1-5));
-  display: none;
+  display: none !important;
 
   @include min($responsiveNav) {
     margin-right: calc(var(--size-1-5) * 1);
@@ -46,15 +45,41 @@
   font-size: var(--size-3-5);
   border-radius: var(--radius-rounded);
   position: relative;
-  gap: var(--size-1-5);
+  gap: var(--size-8);
   box-shadow: var(--shadow-m);
+  margin-left: var(--size-8);
 
   @include sub(1500px, 1, true);
-  @include sub(1350px, 2);
+  @include sub(1400px, 2);
 
   @include max($responsiveNav) {
     order: 3;
-    margin-left: calc(var(--spacing-s) * -0.5);
+    margin-left: var(--size-1-5);
+  }
+
+  a {
+    transition: all 0.2s ease;
+    position: relative;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+
+    &.active,
+    &:hover {
+      color: var(--blue);
+    }
+
+    &.active {
+      &::before {
+        content: "";
+        inset: -5px -12px;
+        position: absolute;
+        border-radius: var(--radius-rounded);
+        background: rgba(var(--blue-rgb), 0.1);
+      }
+    }
   }
 }
 
@@ -76,12 +101,14 @@
   position: absolute;
   right: 0;
   top: 100%;
-  background: var(--background-low);
+  background: var(--card-bg);
   border-radius: var(--radius-rounded);
-  padding: var(--padding);
-  margin-top: var(--size-1-5);
+  padding: 0.75em 1.5em;
+  margin-top: var(--size-2);
   box-shadow: 0 16px 32px rgba(var(--dark-rgb), 0.075);
+  border: 1px solid var(--card-border);
   @include auto-alpha(0);
+  @include backdrop;
 
   &.open {
     @include auto-alpha(1);

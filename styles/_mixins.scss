@@ -60,23 +60,26 @@ $responsiveMobile: 700px;
   transition: $transitions;
 }
 
-@mixin backdrop($px: var(--size-2)) {
-  backdrop-filter: blur($px);
-  -webkit-backdrop-filter: blur($px);
-  will-change: backdrop-filter;
-  /* Performance optimizations */
-  perspective: 1000;
+// Performance helpers
+@mixin performance($will-change: false) {
+  perspective: 1000px;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+  @if $will-change {
+    will-change: $will-change;
+  }
+}
+
+@mixin backdrop($px: 8px) {
+  -webkit-backdrop-filter: blur($px);
+  backdrop-filter: blur($px);
+  @include performance;
 }
 
 @mixin blur($px: var(--size-6)) {
   filter: blur($px);
   -webkit-filter: blur($px);
-  /* Performance optimizations */
-  perspective: 1000;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
+  @include performance;
 }
 
 @mixin ellipsis {
@@ -180,7 +183,9 @@ $responsiveMobile: 700px;
   gap: var(--card-gap, calc(var(--card-padding, #{$padding}) / 1.5));
   padding: var(--card-padding, #{$padding});
   border-radius: var(--card-radius, var(--radius-l));
+  border: 1px solid var(--card-border, var(--background-low));
   min-height: 100%;
+  @include backdrop(32px);
 
   @include max(700px) {
     padding: var(--size-8);

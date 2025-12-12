@@ -21,23 +21,6 @@
   margin: 0 auto;
 }
 
-.mainCard {
-  padding: 2.5rem !important;
-  background-color: var(--background-low) !important;
-
-  @media (max-width: 1024px) {
-    padding: 2rem !important;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1.5rem !important;
-  }
-
-  @media (max-width: 480px) {
-    padding: 1rem !important;
-  }
-}
-
 .headingWrapper {
   margin-bottom: 2rem;
 
@@ -129,7 +112,12 @@
   &.active {
     color: var(--primary-medium);
     border-bottom-color: var(--primary-medium);
-    background: linear-gradient(to bottom, transparent 0%, transparent 10%, var(--background-high) 100%);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 10%,
+      var(--background-high) 100%
+    );
   }
 
   &.disabled {

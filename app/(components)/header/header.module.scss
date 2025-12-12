@@ -27,6 +27,10 @@
     left: 50%;
     transform: translateX(-50%);
   }
+
+  [data-variant="secondary"] {
+    @include backdrop(16px);
+  }
 }
 
 .content {
@@ -58,5 +62,5 @@
 .right {
   display: flex;
   margin-left: auto;
-  gap: var(--size-2);
+  gap: var(--size-1-5);
 }

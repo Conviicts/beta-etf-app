@@ -8,14 +8,16 @@
 
 .toast {
   @include user-select;
-  background-color: var(--background-lower) !important;
+  background-color: var(--card-bg) !important;
   border: 0 !important;
-  box-shadow: 0 16px 32px rgba(var(--dark-rgb), 0.05) !important;
+  box-shadow: 0 16px 32px rgba(var(--dark-rgb), 0.05),
+    0 0 0 1px var(--card-border) inset !important;
   border-radius: var(--radius-m) !important;
   color: var(--text-tertiary) !important;
   letter-spacing: 0 !important;
   font-family: var(--font-main) !important;
   padding: var(--size-6) !important;
+  @include backdrop(24px);
 
   a {
     font-weight: bold;

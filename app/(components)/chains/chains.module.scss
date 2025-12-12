@@ -8,6 +8,9 @@
 }
 
 .change {
+  padding-left: 0.65em !important;
+  padding-right: 0.85em !important;
+
   @include max($responsiveMobile) {
     width: var(--btn-base-height);
 
@@ -38,6 +41,8 @@
   .button {
     width: 100%;
     --btn-size: var(--size-4);
+    --btn-padding-x: 1em;
+    --btn-height: var(--size-16);
 
     span {
       flex: 1;
@@ -58,5 +63,3 @@
   border-radius: 50%;
   background-color: var(--white);
 }
-
-

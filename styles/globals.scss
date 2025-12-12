@@ -10,7 +10,7 @@ html {
   background-color: var(--body);
   color: var(--text-primary);
   font-size: calc(14px + 1 * ((100vw - 320px) / 680));
-  font-weight: 500;
+  font-weight: 400;
   font-feature-settings: "salt" on;
   line-height: 1.15;
   @include no-scrollbar;

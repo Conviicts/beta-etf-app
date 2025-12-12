@@ -190,4 +190,16 @@ $status-colors: (
   --stroke: rgba(var(--tertiary-rgb), 0.05);
   --btn-border-secondary: rgba(var(--tertiary-rgb), 0.15);
   --btn-color-secondary: var(--text-secondary);
+  --card-bg: rgba(var(--tertiary-rgb), 0.05);
+  --card-border: rgba(var(--tertiary-rgb), 0.05);
+  --card-shadow: 0 0 32px rgba(255, 255, 255, 0.1) inset;
+  --input-bg: var(--card-bg);
+  --input-border: var(--card-border);
+  --modal-overlay: rgba(var(--body-rgb), 0.85);
+  --modal-bg: var(--card-bg);
+  --modal-border: var(--card-border);
+  --modal-shadow: 0 0 32px rgba(var(--dark-rgb), 0.1) inset;
+  --dropdown-bg: var(--card-bg);
+  --dropdown-border: var(--card-border);
+  --dropdown-shadow: 0 0 24px rgba(var(--dark-rgb), 0.25) inset;
 }
