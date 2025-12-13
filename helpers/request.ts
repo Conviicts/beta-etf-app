@@ -1,6 +1,7 @@
 import { RPC_URL_DEFAULT } from "@/config/app"
 import { getRpcUrl } from "@/config/rpc"
 import { env } from "@/env"
+import { LeaderboardEntry } from "@/types/points"
 
 async function requestWithRpcUrl<T>(rpcUrl: string, method: string, params: any[]): Promise<T | null> { 
   const response = await fetch(rpcUrl, {
@@ -119,5 +120,49 @@ async function fetchETFs(page: number = 1, size: number = 10): Promise<ETFsApiRe
   return data
 }
 
-export { request, requestWithRpcUrl, fetchETFs }
-export type { ETFResponse, ETFsApiResponse, ETFAsset }
+interface LeaderboardApiResponse {
+  success: boolean
+  data: LeaderboardEntry[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
+
+async function fetchLeaderboard(page: number = 1, size: number = 25): Promise<LeaderboardApiResponse> {
+  const apiUrl = env.NEXT_PUBLIC_BASE_API_URL
+  
+  if (!apiUrl) {
+    throw new Error("NEXT_PUBLIC_BASE_API_URL is not configured. Please set it in your .env file.")
+  }
+
+  // Remove trailing slash if present to avoid double slashes
+  const baseUrl = apiUrl.replace(/\/+$/, "")
+  const url = `${baseUrl}/api/leaderBoard?page=${page}&limit=${size}`
+  
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch leaderboard: ${response.statusText}`)
+  }
+
+  const data: LeaderboardApiResponse = await response.json()
+
+  if (!data.success) {
+    throw new Error("API returned unsuccessful response")
+  }
+
+  return data
+}
+
+export { request, requestWithRpcUrl, fetchETFs, fetchLeaderboard }
+export type { ETFResponse, ETFsApiResponse, ETFAsset, LeaderboardApiResponse }
