@@ -939,10 +939,8 @@ export default function ETFList() {
                     </span>
                   </Card>
                   <Card className={s.metric}>
-                    <span className={s.metricLabel}>APY</span>
-                    <span className={`${s.metricValue} ${s.positive}`}>
-                      {etf.apy}
-                    </span>
+                    <span className={s.metricLabel}>Supply</span>
+                    <span className={s.metricValue}>0.000</span>
                   </Card>
                   <Card className={s.metric}>
                     <span className={s.metricLabel}>24h Change</span>
