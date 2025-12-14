@@ -56,8 +56,8 @@ export const ETFCreatorInterface = () => {
   const [form, setForm] = useState<ETFForm>({
     name: "",
     symbol: "",
-    depositToken: "",
-    depositFeed: "",
+    depositToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+    depositFeed: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // Chainlink USDC/USD
     router: "",
     tokens: [],
     currentTokenAddress: "",
@@ -398,6 +398,7 @@ export const ETFCreatorInterface = () => {
               icon="hugeicons:link-01"
               type="text"
               value={form.depositToken}
+              disabled={true}
               placeholder="0x..."
               onChange={handleInputChange("depositToken")}
             />

@@ -376,24 +376,10 @@ export default function ETFList() {
       setIsLoading(true)
       setError(null)
       try {
-        if (USE_MOCK_DATA) {
-          // Données de test
-          setEtfs(MOCK_ETFS)
-          setPagination({
-            page: 1,
-            size: 10,
-            total: MOCK_ETFS.length,
-            totalPages: 1,
-            hasNextPage: false,
-            hasPreviousPage: false
-          })
-        } else {
-          // API réelle
-          const response = await fetchETFs(currentPage, pageSize)
-          const formattedETFs = response.data.map(formatETFResponse)
-          setEtfs(formattedETFs)
-          setPagination(response.pagination)
-        }
+        const response = await fetchETFs(currentPage, pageSize)
+        const formattedETFs = response.data.map(formatETFResponse)
+        setEtfs(formattedETFs)
+        setPagination(response.pagination)
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to load ETFs"
@@ -783,7 +769,7 @@ export default function ETFList() {
             $
             {filteredAndSortedETFs
               .reduce(
-                (sum, etf) => sum + parseFloat(etf.tvl.replace(/[^0-9.]/g, "")),
+                (sum, etf) => sum + Number(etf.tvl),
                 0
               )
               .toFixed(2)}
