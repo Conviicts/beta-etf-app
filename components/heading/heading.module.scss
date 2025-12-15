@@ -14,8 +14,8 @@
     gap: 0.5em;
     flex-wrap: wrap;
   }
-  
-  @media (max-width: 375px) {
+
+  @include max(375px) {
     gap: 0.4em;
   }
 }
@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 700;
+  font-weight: 300;
   letter-spacing: -0.015em;
   line-height: 1.4;
   @include ellipsis;
@@ -53,23 +53,23 @@
 
 .icon {
   font-size: var(--heading-icon, var(--size-13));
-  color: var(--primary-medium);
-  background-color: var(--background-high);
+  background: linear-gradient(to top, var(--blue), rgba(var(--blue-rgb), 0.25));
   width: 1em;
   min-width: 1em;
   height: 1em;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.45em;
+  border-radius: 0.35em;
   padding: 0.275em;
+  border: 1px solid var(--blue);
 
   @include max($responsiveMobile) {
     font-size: var(--heading-icon, var(--size-11));
     flex-shrink: 0;
   }
-  
-  @media (max-width: 375px) {
+
+  @include max(375px) {
     font-size: var(--heading-icon, var(--size-10));
     flex-shrink: 0;
   }
@@ -90,8 +90,8 @@
     margin-left: auto;
     --btn-height: var(--button-small-height);
   }
-  
-  @media (max-width: 375px) {
+
+  @include max(375px) {
     margin-top: 0.5em;
     width: 100%;
     justify-content: flex-start;

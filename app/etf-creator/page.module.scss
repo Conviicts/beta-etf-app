@@ -1,11 +1,13 @@
 @use "styles/mixins" as *;
 
+$responsive: 1250px;
+
 .etfCreator {
   display: flex;
-  gap: var(--size-8); // 32px gap between columns
+  gap: var(--size-6);
   align-items: flex-start;
 
-  @include max(1150px) {
+  @include max($responsive) {
     flex-direction: column;
   }
 }
@@ -14,7 +16,12 @@
 .rightColumn {
   display: flex;
   flex-direction: column;
-  gap: var(--size-8); // 32px gap between sections within each column
+  gap: var(--size-6);
   flex: 1;
   min-width: 0;
+
+  @include max($responsive) {
+    flex: 1;
+    width: 100%;
+  }
 }

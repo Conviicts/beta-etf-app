@@ -58,7 +58,7 @@
   --button-xsmall-size: var(--size-2-5);
   --button-small-height: var(--size-11);
   --button-small-size: var(--size-3);
-  --button-medium-height: var(--size-13);
+  --button-medium-height: var(--size-11);
   --button-medium-size: var(--size-3-5);
   --button-large-height: var(--size-16);
   --button-large-size: var(--size-5);
@@ -78,6 +78,12 @@
 
   /* Shadows */
   --shadow-m: 0 16px 32px rgba(var(--dark-rgb), 0.01);
+
+  /* Container */
+  --container-width: calc(700px + 400 * (100vw - 320px) / 1080);
+  --container-middle: calc(var(--container-width) / 2.5);
+  --container-max: 85vw;
+  --container-padding: calc((100vw - var(--container-max)) / 2);
 
   @include max(700px) {
     --main-padding: var(--spacing-s);

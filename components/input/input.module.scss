@@ -7,9 +7,9 @@
 .input {
   --input-transition: 0.2s;
   --input-padding: var(--size-3);
-  transition: outline var(--input-transition),
-    background-color var(--input-transition);
-  background-color: var(--background-medium);
+  transition: border var(--input-transition),
+    background-color var(--input-transition), box-shadow var(--input-transition);
+  background-color: var(--input-bg, var(--background-medium));
   border-radius: var(--radius-s);
   padding: var(--input-padding) calc(var(--input-padding) * 1.5);
   display: flex;
@@ -18,12 +18,13 @@
   font-size: var(--size-4-5);
   text-align: left;
   position: relative;
-  outline: 2px solid transparent;
+  border: 1px solid var(--input-border, transparent);
   min-height: 3.5em;
+  box-shadow: 0 0 24px rgba(var(--blue-rgb), 0);
 
   &:focus-within {
-    background-color: var(--background-low);
-    outline: 2px solid var(--primary-medium);
+    border-color: var(--blue);
+    box-shadow: 0 0 24px rgba(var(--blue-rgb), 0.25);
   }
 
   &.textarea {

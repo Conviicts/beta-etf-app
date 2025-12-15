@@ -9,7 +9,7 @@
   justify-content: center;
   align-items: flex-end;
   overflow: scroll;
-  background-color: rgba(var(--light-rgb), 0.15);
+  background-color: var(--modal-overlay);
   padding: var(--main-padding);
   @include no-scrollbar;
 
@@ -42,7 +42,6 @@
 .modal {
   --modal-padding: var(--size-10);
   position: relative;
-  background-color: var(--background-lower);
   padding: var(--modal-padding);
   z-index: 10;
   display: flex;
@@ -51,8 +50,10 @@
   gap: calc(var(--modal-padding) / 2);
   width: var(--modal-width, calc(450px + 100 * (100vw - 320px) / 1080));
   max-width: 100%;
-  box-shadow: 0 24px 56px rgba(var(--dark-rgb), 0.1);
-  border-radius: var(--radius-m);
+  box-shadow: var(--modal-shadow);
+  border-radius: var(--radius-l);
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
 
   &.full {
     min-height: 100%;

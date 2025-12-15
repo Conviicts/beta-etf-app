@@ -15,14 +15,13 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1rem;
-  background: var(--background-lower);
-  border: 1px solid var(--border-light);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-m);
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: var(--primary-medium);
-    background: var(--background-low);
+    border-color: var(--blue);
   }
 }
 
@@ -32,15 +31,15 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: var(--background-low);
-  border: 1px solid var(--border-light);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-m);
   flex-shrink: 0;
 
   svg {
     width: 18px;
     height: 18px;
-    color: var(--primary-medium);
+    color: var(--blue);
   }
 }
 
