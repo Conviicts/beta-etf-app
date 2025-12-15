@@ -553,7 +553,8 @@ export const useETFContract = () => {
   const estimateDepositShares = async (params: {
     factory: string
     vault: string
-    amount: string
+    amount: string,
+    allowance: bigint
   }): Promise<string> => {
     if (!web3Provider || !address) {
       throw new Error("No wallet connected")
@@ -565,10 +566,13 @@ export const useETFContract = () => {
         params.factory
       )
 
+      const needEstimateBool = params.allowance < BigInt(params.amount)
+      // permit to calculate impermanent loss impact
+
       // Call deposit with minSharesOut = 0 and simulate = true to get the estimated shares
       // The function now returns sharesOutRet directly
       const sharesOutRet: any = await factoryContract.methods
-        .deposit(params.vault, params.amount, "0", true)
+        .deposit(params.vault, params.amount, "0", needEstimateBool)
         .call({ from: address })
       
       return String(sharesOutRet)
@@ -581,6 +585,7 @@ export const useETFContract = () => {
     factory: string
     vault: string
     shares: string
+    allowance: bigint
   }): Promise<string> => {
     if (!web3Provider || !address) {
       throw new Error("No wallet connected")
@@ -592,10 +597,13 @@ export const useETFContract = () => {
         params.factory
       )
 
+      const needEstimateBool = params.allowance < BigInt(params.shares)
+      // permit to calculate impermanent loss impact
+
       // Call redeem with minOut = 0 and simulate = true to get the estimated deposit tokens
       // The function now returns depositOutRet directly
       const depositOutRet: any = await factoryContract.methods
-        .redeem(params.vault, params.shares, "0", true)
+        .redeem(params.vault, params.shares, "0", needEstimateBool)
         .call({ from: address })
       
       return String(depositOutRet)

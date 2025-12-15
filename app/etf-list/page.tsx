@@ -1084,7 +1084,8 @@ export default function ETFList() {
                   const estimatedSharesWei = await estimateDepositShares({
                     factory: selectedETF.factory,
                     vault: selectedETF.vault,
-                    amount: amountWei
+                    amount: amountWei,
+                    allowance: hasAllowance ? BigInt(amountWei) : BigInt(0)
                   })
 
                   // Convert shares from wei to human-readable format and apply slippage
@@ -1160,7 +1161,8 @@ export default function ETFList() {
                     const estimatedSharesWei = await estimateDepositShares({
                       factory: selectedETF.factory,
                       vault: selectedETF.vault,
-                      amount: amountWei
+                      amount: amountWei,
+                      allowance: hasAllowance ? BigInt(amountWei) : BigInt(0)
                     })
 
                     if (estimatedSharesWei && estimatedSharesWei !== "0") {
@@ -1355,7 +1357,8 @@ export default function ETFList() {
                   const estimatedDepositWei = await estimateRedeemDeposit({
                     factory: selectedETF.factory,
                     vault: selectedETF.vault,
-                    shares: sharesWei
+                    shares: sharesWei,
+                    allowance: hasAllowance ? BigInt(sharesWei) : BigInt(0)
                   })
 
                   // Convert deposit tokens from wei to human-readable format and apply slippage
@@ -1430,7 +1433,8 @@ export default function ETFList() {
                     const estimatedDepositWei = await estimateRedeemDeposit({
                       factory: selectedETF.factory,
                       vault: selectedETF.vault,
-                      shares: sharesWei
+                      shares: sharesWei,
+                      allowance: hasAllowance ? BigInt(sharesWei) : BigInt(0)
                     })
 
                     if (estimatedDepositWei && estimatedDepositWei !== "0") {
