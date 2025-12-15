@@ -50,7 +50,7 @@
       opacity: 1;
     }
 
-    .name {
+    .symbol {
       color: var(--blue);
     }
   }
@@ -64,105 +64,193 @@
       opacity: 1;
     }
 
-    .name {
+    .symbol {
       color: var(--blue);
     }
   }
 
   .itemContent {
     display: flex;
-    flex-direction: column;
-    gap: var(--size-3);
+    align-items: center;
+    gap: var(--size-4);
     position: relative;
 
-    .mainInfo {
+    .icon {
+      flex-shrink: 0;
+      width: var(--size-8);
+      height: var(--size-8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      & > * {
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+
+    .tokenLogos {
+      --token-logo-size: calc(48px + 2 * (100vw - 320px) / 1080);
+      --div: 2.5;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: var(--token-logo-size);
+      height: var(--token-logo-size);
+      border-radius: var(--radius-s);
+      background: linear-gradient(
+        to bottom,
+        var(--background-low),
+        var(--background-medium)
+      );
+
+      &.moreLogos {
+        &::before {
+          content: "+" attr(data-more-tokens);
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          background: var(--blue);
+          z-index: 5;
+          letter-spacing: -0.015em;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          width: calc(var(--token-logo-size) / var(--div));
+          height: calc(var(--token-logo-size) / var(--div));
+        }
+      }
+
+      &[data-nb-tokens]:not([data-nb-tokens="1"]):not([data-nb-tokens="2"]):not(
+          [data-nb-tokens="3"]
+        ) {
+        .tokenLogo {
+          &:nth-child(1) {
+            position: absolute;
+            top: 12%;
+            left: 12%;
+          }
+          &:nth-child(2) {
+            position: absolute;
+            top: 12%;
+            right: 12%;
+          }
+          &:nth-child(3) {
+            position: absolute;
+            bottom: 12%;
+            left: 12%;
+          }
+          &:nth-child(4) {
+            position: absolute;
+            bottom: 12%;
+            right: 12%;
+          }
+        }
+      }
+
+      &[data-nb-tokens="1"] {
+        .tokenLogo {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      &[data-nb-tokens="2"] {
+        .tokenLogo {
+          &:nth-child(1) {
+            position: absolute;
+            left: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+          &:nth-child(2) {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+        }
+      }
+
+      &[data-nb-tokens="3"] {
+        .tokenLogo {
+          &:nth-child(1) {
+            position: absolute;
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+          }
+          &:nth-child(2) {
+            position: absolute;
+            left: 13%;
+            bottom: 12%;
+            transform: none;
+          }
+          &:nth-child(3) {
+            position: absolute;
+            right: 13%;
+            bottom: 12%;
+            transform: none;
+          }
+        }
+      }
+    }
+
+    .tokenLogo {
+      width: calc(var(--token-logo-size) / var(--div));
+      height: calc(var(--token-logo-size) / var(--div));
+      border-radius: 50%;
+      transition: width 0.2s ease, height 0.2s ease;
+      object-fit: cover;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:hover {
+        --div: 2;
+        z-index: 10 !important;
+        filter: drop-shadow(0 0 10px var(--blue));
+      }
+    }
+
+    .text {
       display: flex;
       flex-direction: column;
       gap: var(--size-1);
-      position: relative;
       flex: 1;
 
-      .name {
+      .symbol {
         font-size: var(--size-5);
         font-weight: 600;
         color: var(--text-primary);
         transition: color 0.2s ease;
-        position: relative;
-        padding-right: var(--size-8);
-        line-height: 1.5;
       }
 
-      .symbol {
+      .name {
         font-size: var(--size-4);
         color: var(--text-secondary);
       }
     }
 
-    .tokensContainer {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-
-      .tokens {
-        display: flex;
-        gap: var(--size-2);
-        align-items: center;
-        flex-wrap: wrap;
-
-        .token {
-          display: flex;
-          align-items: center;
-          gap: var(--size-2);
-          font-size: var(--size-3);
-          padding: var(--size-1) var(--size-3);
-          background-color: var(--card-bg);
-          border: 1px solid var(--border-medium);
-          border-radius: var(--radius-xs);
-          color: var(--text-secondary);
-
-          img {
-            width: var(--size-4);
-            height: var(--size-4);
-            flex-shrink: 0;
-            border-radius: 50%;
-            object-fit: cover;
-          }
-
-          & > * {
-            width: var(--size-4);
-            height: var(--size-4);
-            flex-shrink: 0;
-            border-radius: 50%;
-            object-fit: cover;
-          }
-
-          .tokenSymbol {
-            font-size: var(--size-3);
-          }
-        }
-
-        .tokenMore {
-          font-size: var(--size-3);
-          padding: var(--size-1) var(--size-3);
-          background-color: var(--card-bg);
-          border: 1px solid var(--border-medium);
-          border-radius: var(--radius-xs);
-          color: var(--text-secondary);
-          font-weight: 600;
-        }
-      }
-    }
-
     .arrow {
-      position: absolute;
-      right: 0;
-      top: 0;
+      margin-left: auto;
       flex-shrink: 0;
       opacity: 0.5;
       transition: opacity 0.2s ease;
-      display: flex;
-      align-items: center;
-      height: 1.5em;
     }
   }
 }

@@ -497,6 +497,8 @@
     flex-direction: column;
     gap: 0.6rem;
     border-radius: var(--radius-s);
+    min-width: 0;
+    overflow: hidden;
 
     @include max(480px) {
       gap: 0.5rem;
@@ -518,6 +520,12 @@
     color: var(--text-primary);
     letter-spacing: -0.25px;
     line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    min-width: 0;
+    display: block;
 
     &.positive {
       color: var(--success-medium);

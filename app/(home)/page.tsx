@@ -16,6 +16,7 @@ import Image from "next/image"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { useAccount, useChainId } from "wagmi"
+import { useAppKit } from "@reown/appkit/react"
 import { ETFSelectModal } from "./(components)/etf-select-modal"
 import { SlippageModal } from "./(components)/slippage-modal"
 import { TokenSelectModal } from "./(components)/token-select-modal"
@@ -35,6 +36,7 @@ export default function Home() {
   const chainId = useChainId()
   const { address } = useAccount()
   const web3Provider = useWeb3Provider()
+  const { open: openLoginModal } = useAppKit()
   
   const [tokenModalOpen, setTokenModalOpen] = useState(false)
   const [etfModalOpen, setEtfModalOpen] = useState(false)
@@ -77,11 +79,12 @@ export default function Home() {
     refetchInterval: 5 * 60 * 1000
   })
 
-  // Fetch ETFs based on selected deposit token
+  // Fetch ETFs based on selected deposit token (only in buy mode)
+  // In sell mode, fetch all ETFs regardless of deposit token
   const { data: etfsData } = useQuery({
-    queryKey: ["etfs", selectedDepositToken?.address],
-    queryFn: () => fetchETFs(1, 10, selectedDepositToken?.address),
-    enabled: !!selectedDepositToken?.address,
+    queryKey: ["etfs", selectedDepositToken?.address, isReversed],
+    queryFn: () => fetchETFs(1, 10, isReversed ? undefined : selectedDepositToken?.address),
+    enabled: isReversed || !!selectedDepositToken?.address,
     staleTime: 5 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000
   })
@@ -797,7 +800,11 @@ export default function Home() {
           </>
         )}
         {!isWalletConnected ? (
-          <Button className={s.start} disabled>
+          <Button 
+            className={s.start} 
+            onClick={() => openLoginModal()}
+            iconLeft="hugeicons:wallet-01"
+          >
             Connect Wallet
           </Button>
         ) : !isETFChainMatch && selectedETF ? (

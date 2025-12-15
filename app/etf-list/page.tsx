@@ -16,6 +16,7 @@ import { fetchETFs, type ETFResponse } from "@/helpers/request"
 import { useETFContract } from "@/hooks/useETFContract"
 import { useWeb3Provider } from "@/hooks/useWeb3Provider"
 import { formatTokenAmount } from "@/lib/utils/number"
+import { formatTokenSupply } from "@/helpers/format"
 import { fetchCGTokenData } from "@/utils/price"
 import { useQuery } from "@tanstack/react-query"
 import clsx from "clsx"
@@ -844,7 +845,9 @@ export default function ETFList() {
                   </Card>
                   <Card className={s.metric}>
                     <span className={s.metricLabel}>Supply</span>
-                    <span className={s.metricValue}>{ etf.totalSupply ?? "0.000" }</span>
+                    <span className={s.metricValue}>
+                      {formatTokenSupply(etf.totalSupply, 18, 4)}
+                    </span>
                   </Card>
                   <Card className={s.metric}>
                     <span className={s.metricLabel}>24h Change</span>
