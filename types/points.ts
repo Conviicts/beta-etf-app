@@ -9,7 +9,7 @@ export interface LeaderboardEntry {
   address: string
   totalPointsAccrued: number
   feesGenerated: string
-  volumeTraded: string
+  volumeTradedUSD: string
   transactionsPerformed: number
   referralPoints: number
   iaaStPoints: number

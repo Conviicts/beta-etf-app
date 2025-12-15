@@ -8,6 +8,7 @@ import { SeasonTabs } from "@/components/season-tabs"
 import { fetchLeaderboard } from "@/helpers/request"
 import { truncateAddress } from "@/lib/utils"
 import type { LeaderboardEntry } from "@/types/points"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import s from "./leaderboard.module.scss"
 
@@ -143,10 +144,19 @@ export default function LeaderboardPage() {
                       </span>
                     </td>
                     <td className={s.volumeCol} data-th="Volume traded">
-                      {parseFloat(entry.volumeTraded).toLocaleString("en-US", {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                      })}
+                      <span className={s.volumeContent}>
+                        {parseFloat(entry.volumeTradedUSD).toLocaleString("en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2
+                        })}
+                        <Image
+                          src="/img/usdc.png"
+                          alt="USDC"
+                          width={20}
+                          height={20}
+                          className={s.usdcIcon}
+                        />
+                      </span>
                     </td>
                     <td
                       className={s.transactionsCol}

@@ -5,6 +5,7 @@ import { Input } from "@/components/input"
 import { Modal } from "@/components/modal"
 import { Symbol } from "@/components/symbol"
 import { getAssetColor, getAssetIcon } from "@/utils/assets"
+import clsx from "clsx"
 import Image from "next/image"
 import { useMemo, useState } from "react"
 import s from "./etf-select-modal.module.scss"
@@ -61,41 +62,30 @@ export function ETFSelectModal({
     onClose()
   }
 
-  const displayTokens = (tokens: ETF["tokens"]) => {
-    const visibleTokens = tokens.slice(0, 3)
-    const remainingCount = tokens.length - 3
-
-    return (
-      <div className={s.tokens}>
-        {visibleTokens.map((token, index) => {
-          const logo = tokenData[token.symbol.toLowerCase()]?.logo
-
-          return (
-            <div key={index} className={s.token}>
-              {logo ? (
-                <Image
-                  src={logo}
-                  alt={token.symbol}
-                  width={16}
-                  height={16}
-                  className={s.tokenLogo}
-                />
-              ) : (
-                <Symbol
-                  icon={getAssetIcon(token.symbol)}
-                  color={getAssetColor(token.symbol)}
-                  className={s.tokenIcon}
-                />
-              )}
-              <span className={s.tokenSymbol}>{token.symbol}</span>
-            </div>
-          )
-        })}
-        {remainingCount > 0 && (
-          <span className={s.tokenMore}>+{remainingCount}</span>
-        )}
-      </div>
-    )
+  const getETFIcon = (etf: ETF) => {
+    // Use the first token's icon as the ETF icon, or a default icon
+    // This is used as fallback when no token logos are available
+    if (etf.tokens.length > 0) {
+      const firstToken = etf.tokens[0]
+      const logo = tokenData[firstToken.symbol.toLowerCase()]?.logo
+      
+      if (logo) {
+        return { type: "image" as const, src: logo }
+      }
+      
+      return {
+        type: "symbol" as const,
+        icon: getAssetIcon(firstToken.symbol),
+        color: getAssetColor(firstToken.symbol)
+      }
+    }
+    
+    // Default ETF icon
+    return {
+      type: "symbol" as const,
+      icon: "hugeicons:chart-05",
+      color: getAssetColor("ETF")
+    }
   }
 
   return (
@@ -121,32 +111,75 @@ export function ETFSelectModal({
           {filteredETFs.length === 0 ? (
             <div className={s.empty}>No ETFs found</div>
           ) : (
-            filteredETFs.map((etf) => (
-              <button
-                key={etf.id}
-                type="button"
-                className={s.item}
-                onClick={() => handleSelect(etf)}
-              >
-                <div className={s.itemContent}>
-                  <div className={s.mainInfo}>
-                    <div className={s.name}>
-                      {etf.name}
-                      <Icon
-                        icon="hugeicons:arrow-right-01"
-                        className={s.arrow}
-                      />
+            filteredETFs.map((etf) => {
+              const etfIcon = getETFIcon(etf)
+              const hasTokenLogos = etf.tokens.length > 0 && etf.tokens.some(
+                (token) => tokenData[token.symbol.toLowerCase()]?.logo
+              )
+
+              return (
+                <button
+                  key={etf.id}
+                  type="button"
+                  className={s.item}
+                  onClick={() => handleSelect(etf)}
+                >
+                  <div className={s.itemContent}>
+                    {hasTokenLogos ? (
+                      <div
+                        className={clsx(
+                          s.tokenLogos,
+                          etf.tokens.length > 4 && s.moreLogos
+                        )}
+                        data-nb-tokens={etf.tokens.length}
+                        data-more-tokens={
+                          etf.tokens.length > 4 ? etf.tokens.length - 4 : 0
+                        }
+                      >
+                        {etf.tokens.slice(0, 4).map((token, index) => {
+                          const logo =
+                            tokenData[token.symbol.toLowerCase()]?.logo
+                          return logo ? (
+                            <Image
+                              key={token.symbol}
+                              src={logo}
+                              alt={token.symbol}
+                              className={s.tokenLogo}
+                              style={{ zIndex: 4 - index }}
+                              title={token.symbol}
+                              width={48}
+                              height={48}
+                            />
+                          ) : null
+                        })}
+                      </div>
+                    ) : (
+                      <div className={s.icon}>
+                        {etfIcon.type === "image" ? (
+                          <Image
+                            src={etfIcon.src}
+                            alt={etf.symbol}
+                            width={32}
+                            height={32}
+                            className={s.tokenLogo}
+                          />
+                        ) : (
+                          <Symbol
+                            icon={etfIcon.icon}
+                            color={etfIcon.color}
+                          />
+                        )}
+                      </div>
+                    )}
+                    <div className={s.text}>
+                      <div className={s.symbol}>{etf.symbol}</div>
+                      <div className={s.name}>{etf.name}</div>
                     </div>
-                    <div className={s.symbol}>{etf.symbol}</div>
+                    <Icon icon="hugeicons:arrow-right-01" className={s.arrow} />
                   </div>
-                  {etf.tokens.length > 0 && (
-                    <div className={s.tokensContainer}>
-                      {displayTokens(etf.tokens)}
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))
+                </button>
+              )
+            })
           )}
         </div>
       </div>
