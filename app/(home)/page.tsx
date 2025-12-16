@@ -319,6 +319,7 @@ export default function Home() {
 
         // Store estimated amounts and values for display
         setEstimatedAmountsOut(estimateResult.amountsOut)
+        console.log("estimateResult", estimateResult)
         setEstimatedValuesPerAsset(estimateResult.valuesPerAsset)
 
         // Calculate impermanent loss
@@ -862,7 +863,7 @@ export default function Home() {
               <div className={s.tokenDistribution}>
                 <div className={s.tokenDistributionHeader}>
                   <Icon icon="hugeicons:pie-chart" />
-                  <span>Estimated Token Distribution</span>
+                  <span>Estimated Token Added in ETF</span>
                 </div>
                 <div className={s.tokenDistributionList}>
                   {selectedETF.assets.map((asset, index) => {
