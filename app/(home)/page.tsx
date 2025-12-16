@@ -739,7 +739,19 @@ export default function Home() {
                 {sellAmount && selectedETF?.sharePrice 
                   ? `~$${(parseFloat(sellAmount) * parseFloat(selectedETF.sharePrice)).toFixed(2)}`
                   : depositTokenBalance !== null 
-                    ? `Balance: ${depositTokenBalance} ${selectedDepositToken?.symbol || ""}` 
+                    ? (
+                      <span 
+                        className={s.clickableBalance}
+                        onClick={() => {
+                          if (depositTokenBalance) {
+                            handleSellAmountChange(depositTokenBalance)
+                          }
+                        }}
+                        title="Click to use max balance"
+                      >
+                        Balance: {depositTokenBalance} {selectedDepositToken?.symbol || ""}
+                      </span>
+                    )
                     : "$0.00"}
               </div>
         </div>
@@ -939,7 +951,19 @@ export default function Home() {
                 {sellAmount && selectedETF?.sharePrice 
                   ? `~$${(parseFloat(sellAmount) * parseFloat(selectedETF.sharePrice)).toFixed(2)}`
                   : shareTokenBalance !== null 
-                    ? `Balance: ${shareTokenBalance} ${selectedETF?.symbol || ""}` 
+                    ? (
+                      <span 
+                        className={s.clickableBalance}
+                        onClick={() => {
+                          if (shareTokenBalance) {
+                            handleSellAmountChange(shareTokenBalance)
+                          }
+                        }}
+                        title="Click to use max balance"
+                      >
+                        Balance: {shareTokenBalance} {selectedETF?.symbol || ""}
+                      </span>
+                    )
                     : "$0.00"}
               </div>
             </div>

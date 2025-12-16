@@ -85,6 +85,23 @@
     font-size: 0.9em;
   }
 
+  .clickableBalance {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--primary-medium);
+      text-decoration-style: solid;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
   .middle {
     display: flex;
 
